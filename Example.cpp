@@ -10,46 +10,40 @@
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/Tooling/Tooling.h"
 
-using namespace std;
-using namespace clang;
-using namespace clang::driver;
-using namespace clang::tooling;
-using namespace llvm;
-
-Rewriter rewriter;
+clang::Rewriter rewriter;
 int numFunctions = 0;
 
-class ExampleVisitor : public RecursiveASTVisitor<ExampleVisitor> {
+class ExampleVisitor : public clang::RecursiveASTVisitor<ExampleVisitor> {
    private:
-    ASTContext *astContext;  // used for getting additional AST info
+     clang::ASTContext *astContext;  // used for getting additional AST info
 
    public:
-    explicit ExampleVisitor(CompilerInstance *CI)
+    explicit ExampleVisitor(clang::CompilerInstance *CI)
         : astContext(&(CI->getASTContext()))  // initialize private members
     {
         rewriter.setSourceMgr(astContext->getSourceManager(),
                               astContext->getLangOpts());
     }
 
-    virtual bool VisitFunctionDecl(FunctionDecl *func) {
+    virtual bool VisitFunctionDecl(clang::FunctionDecl *func) {
         numFunctions++;
-        string funcName = func->getNameInfo().getName().getAsString();
+        std::string funcName = func->getNameInfo().getName().getAsString();
         if (funcName == "do_math") {
             rewriter.ReplaceText(func->getLocation(), funcName.length(),
                                  "add5");
-            errs() << "** Rewrote function def: " << funcName << "\n";
+            llvm::errs() << "** Rewrote function def: " << funcName << "\n";
         }
         return true;
     }
 
-    virtual bool VisitStmt(Stmt *st) {
-        if (ReturnStmt *ret = dyn_cast<ReturnStmt>(st)) {
+    virtual bool VisitStmt(clang::Stmt *st) {
+        if (clang::ReturnStmt * ret = llvm::dyn_cast<clang::ReturnStmt>(st)) {
             rewriter.ReplaceText(ret->getRetValue()->getLocStart(), 6, "val");
-            errs() << "** Rewrote ReturnStmt\n";
+            llvm::errs() << "** Rewrote ReturnStmt\n";
         }
-        if (CallExpr *call = dyn_cast<CallExpr>(st)) {
+        if (clang::CallExpr * call = llvm::dyn_cast<clang::CallExpr>(st)) {
             rewriter.ReplaceText(call->getLocStart(), 7, "add5");
-            errs() << "** Rewrote function call\n";
+            llvm::errs() << "** Rewrote function call\n";
         }
         return true;
     }
@@ -69,18 +63,18 @@ class ExampleVisitor : public RecursiveASTVisitor<ExampleVisitor> {
     */
 };
 
-class ExampleASTConsumer : public ASTConsumer {
+class ExampleASTConsumer : public clang::ASTConsumer {
    private:
     ExampleVisitor *visitor;  // doesn't have to be private
 
    public:
     // override the constructor in order to pass CI
-    explicit ExampleASTConsumer(CompilerInstance *CI)
+    explicit ExampleASTConsumer(clang::CompilerInstance * CI)
         : visitor(new ExampleVisitor(CI))  // initialize the visitor
     {}
 
     // override this to call our ExampleVisitor on the entire source file
-    virtual void HandleTranslationUnit(ASTContext &Context) {
+    virtual void HandleTranslationUnit(clang::ASTContext &Context) {
         /* we can use ASTContext to get the TranslationUnitDecl, which is
              a single Decl that collectively represents the entire source file
          */
@@ -100,11 +94,11 @@ class ExampleASTConsumer : public ASTConsumer {
     */
 };
 
-class ExampleFrontendAction : public ASTFrontendAction {
+class ExampleFrontendAction : public clang::ASTFrontendAction {
    public:
-    virtual std::unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI,
-                                                           StringRef file) {
-        return std::unique_ptr<ASTConsumer>(
+    virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &CI,
+                                                                  llvm::StringRef file) {
+        return std::unique_ptr<clang::ASTConsumer>(
             new ExampleASTConsumer(&CI));  // pass CI pointer to ASTConsumer
     }
 };
@@ -112,17 +106,17 @@ class ExampleFrontendAction : public ASTFrontendAction {
 int main(int argc, const char **argv) {
     llvm::cl::OptionCategory category("LibToolingExample options");
     // parse the command-line args passed to your code
-    CommonOptionsParser op(argc, argv, category);
+    clang::tooling::CommonOptionsParser op(argc, argv, category);
     // create a new Clang Tool instance (a LibTooling environment)
-    ClangTool Tool(op.getCompilations(), op.getSourcePathList());
+    clang::tooling::ClangTool Tool(op.getCompilations(), op.getSourcePathList());
 
     // run the Clang Tool, creating a new FrontendAction (explained below)
     int result =
-        Tool.run(newFrontendActionFactory<ExampleFrontendAction>().get());
+        Tool.run(clang::tooling::newFrontendActionFactory<ExampleFrontendAction>().get());
 
-    errs() << "\nFound " << numFunctions << " functions.\n\n";
+    llvm::errs() << "\nFound " << numFunctions << " functions.\n\n";
     // print out the rewritten source code ("rewriter" is a global var.)
     rewriter.getEditBuffer(rewriter.getSourceMgr().getMainFileID())
-        .write(errs());
+        .write(llvm::errs());
     return result;
 }
