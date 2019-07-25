@@ -8,12 +8,12 @@ To build this repository under Ubuntu 18.04, you need to do the following:
 Then build and run the Example.cpp file:
 
 	$ mkdir build
-  $ cd build
-  $ cmake ..
-  $ cmake --build .
-  $ cmake --buiild . --target test
+	$ cd build
+	$ cmake ..
+	$ cmake --build .
+	$ cmake --buiild . --target test
 
 Or alternatively, you can run the binary as follows:
 
-  $ cd build
-  $ ./LibToolingExample ../test.c --
+	$ cd build
+	$ ./LibToolingExample ../test.c --
