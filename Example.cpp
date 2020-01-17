@@ -38,11 +38,11 @@ class ExampleVisitor : public clang::RecursiveASTVisitor<ExampleVisitor> {
 
     virtual bool VisitStmt(clang::Stmt *st) {
         if (clang::ReturnStmt * ret = llvm::dyn_cast<clang::ReturnStmt>(st)) {
-            rewriter.ReplaceText(ret->getRetValue()->getLocStart(), 6, "val");
+            rewriter.ReplaceText(ret->getRetValue()->getBeginLoc(), 6, "val");
             llvm::errs() << "** Rewrote ReturnStmt\n";
         }
         if (clang::CallExpr * call = llvm::dyn_cast<clang::CallExpr>(st)) {
-            rewriter.ReplaceText(call->getLocStart(), 7, "add5");
+            rewriter.ReplaceText(call->getBeginLoc(), 7, "add5");
             llvm::errs() << "** Rewrote function call\n";
         }
         return true;
@@ -50,13 +50,13 @@ class ExampleVisitor : public clang::RecursiveASTVisitor<ExampleVisitor> {
 
     /*
         virtual bool VisitReturnStmt(ReturnStmt *ret) {
-            rewriter.ReplaceText(ret->getRetValue()->getLocStart(), 6, "val");
+            rewriter.ReplaceText(ret->getRetValue()->getBeginLoc(), 6, "val");
             errs() << "** Rewrote ReturnStmt\n";
             return true;
         }
 
         virtual bool VisitCallExpr(CallExpr *call) {
-            rewriter.ReplaceText(call->getLocStart(), 7, "add5");
+            rewriter.ReplaceText(call->getBeginLoc(), 7, "add5");
             errs() << "** Rewrote function call\n";
             return true;
         }

@@ -4,7 +4,7 @@ project(LibToolingExample
   VERSION 0.1
   LANGUAGES C CXX)
 
-find_package(LLVM 7.0.0 REQUIRED CONFIG)
+find_package(LLVM 9.0.0 REQUIRED CONFIG)
 include(CTest)
 
 set(CMAKE_CXX_STANDARD 11)
