@@ -2,7 +2,7 @@
 
 To build this repository under Ubuntu 18.04, you need to do the following:
 
-	$ sudo apt-get install clang-7 libclang-7-dev clang-tools-7
+	$ sudo apt-get install clang-9 libclang-9-dev clang-tools-9
 	$ git clone https://github.com/mohamed/LibToolingExample.git
 
 Then build and run the Example.cpp file:
